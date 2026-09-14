@@ -278,4 +278,65 @@ checkpoints/single_gpu/
 Periodic checkpoint cleanup removes older periodic files, retaining the latest `--keep_last` files.
 # Stage-II: Training PEFound
 
+## Step-1: projector training
+```bash
+bash script/pretrain_phi3.sh
+```
+This freezes the language backbone and encoder, and trains the MoE projector and input token embeddings. Defaults: 50 epochs, learning rate `1e-4`, evaluation every 50 steps.
 
+Key outputs:
+- `output/pretrain/best_mm_projector.bin`: projector and input embeddings selected by validation loss.
+- `output/pretrain/mm_projector.bin`: final projector and input embeddings.
+- `output/pretrain/config.json` and tokenizer files.
+- `output/pretrain/run_config.json`: run arguments.
+
+## Step-2: LoRA fine-tuning
+
+Use the same Phi-3 base model and encoder checkpoint as stage 1.
+
+```bash
+export PROJECTOR_CKPT="$(pwd)/output/pretrain/best_mm_projector.bin"
+bash script/finetune_lora_phi3.sh
+```
+Key outputs:
+
+- `output/finetune/best_model_lora/`: checkpoint selected by validation loss.
+- `output/finetune/model_with_lora.bin`: final full model state, including LoRA and trained non-LoRA parameters.
+- `config.json`, `adapter_config.json` and tokenizer files: metadata required for merging.
+- `best_checkpoint_info.json`: selected validation loss, step and epoch.
+
+For four GPUs, run either stage with:
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1,2,3 NPROC=4 BATCH_SIZE=1 GRAD_ACCUM=4 \
+  bash script/finetune_lora_phi3.sh
+```
+# Stage-III:  Merge LoRA weights
+
+```bash
+python -m src.utils.merge_lora_weights_and_save_hf_model \
+  --checkpoint ./output/finetune/best_model_lora \
+  --output_dir ./output/phi3_merged
+```
+
+To export final rather than validation-selected weights, use `--checkpoint ./output/finetune`. The merge reads the saved architecture and LoRA configuration, loads the full state strictly, and exports the model plus tokenizer. Allow enough CPU RAM for the complete model and checkpoint during merging.
+
+# Stage-IV: Inference
+
+Generate a report:
+
+```bash
+python -m src.infer \
+  --model ./output/phi3_merged \
+  --case_dir "$DATA_ROOT/All/Patient-003/Exam-001" \
+  --task report \
+  --output ./output/report.txt
+```
+Generate a diagnosis:
+
+```bash
+python -m src.infer \
+  --model ./output/phi3_merged \
+  --case_dir "$DATA_ROOT/All/Patient-003/Exam-001" \
+  --task diagnosis --max_new_tokens 64
+```
