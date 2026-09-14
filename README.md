@@ -1,5 +1,4 @@
-# PEFound: Pre-training
-
+# Stage-I: Pre-training
 This repository provides code for multimodal pre-training using paired brain MRI examinations and radiology reports.
 The model jointly processes three MRI modalities—T1-weighted, T2-weighted, and T2-FLAIR—and optimizes two complementary objectives:
 - **Image–text contrastive learning:** aligns visual representations with the corresponding radiology report representations.
@@ -277,3 +276,6 @@ checkpoints/single_gpu/
 | `encoder_pretrained.pt` | Vision-encoder parameters and buffers |
 
 Periodic checkpoint cleanup removes older periodic files, retaining the latest `--keep_last` files.
+# Stage-II: Training PEFound
+
+
