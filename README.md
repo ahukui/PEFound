@@ -326,17 +326,18 @@ To export final rather than validation-selected weights, use `--checkpoint ./out
 Generate a report:
 
 ```bash
-python -m src.infer \
-  --model ./output/phi3_merged \
-  --case_dir "$DATA_ROOT/All/Patient-003/Exam-001" \
+python -m PEFound.src.infer \
+  --model ./PEFound/output/finetune/hf \
+  --case_dir /absolute/path/data/All/Patient-001 \
   --task report \
-  --output ./output/report.txt
+  --output ./PEFound/output/report.txt
 ```
 Generate a diagnosis:
 
 ```bash
-python -m src.infer \
-  --model ./output/phi3_merged \
-  --case_dir "$DATA_ROOT/All/Patient-003/Exam-001" \
-  --task diagnosis --max_new_tokens 64
+python -m PEFound.src.infer \
+  --model ./PEFound/output/finetune/hf \
+  --case_dir /absolute/path/data/All/Patient-001 \
+  --task diagnosis \
+  --max_new_tokens 64
 ```
