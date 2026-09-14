@@ -316,7 +316,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 NPROC=4 BATCH_SIZE=1 GRAD_ACCUM=4 \
 ```bash
 python -m src.utils.merge_lora_weights_and_save_hf_model \
   --checkpoint ./output/finetune/best_model_lora \
-  --output_dir ./output/phi3_merged
+  --output_dir ./output/finetune/hf
 ```
 
 To export final rather than validation-selected weights, use `--checkpoint ./output/finetune`. The merge reads the saved architecture and LoRA configuration, loads the full state strictly, and exports the model plus tokenizer. Allow enough CPU RAM for the complete model and checkpoint during merging.
