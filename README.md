@@ -1,14 +1,9 @@
-# PEFound: Multimodal MRI–Report Pre-training
+# PEFound: Pre-training
 
-This repository provides code for multimodal MRI–report pre-training using paired brain MRI examinations and radiology reports.
-
+This repository provides code for multimodal pre-training using paired brain MRI examinations and radiology reports.
 The model jointly processes three MRI modalities—T1-weighted, T2-weighted, and T2-FLAIR—and optimizes two complementary objectives:
-
 - **Image–text contrastive learning:** aligns visual representations with the corresponding radiology report representations.
 - **Multimodal reconstruction:** reconstructs the original MRI volumes from inputs with independently masked 3D sub-volumes.
-
-The implementation supports single-GPU training, distributed multi-GPU training, mixed precision, validation, TensorBoard logging, checkpoint resumption, and vision-encoder export.
-
 > This repository contains the pre-training stage only. The supplied files do not include downstream diagnosis fine-tuning, report-generation fine-tuning, or clinical inference scripts.
 
 ## Contents
@@ -18,13 +13,7 @@ The implementation supports single-GPU training, distributed multi-GPU training,
 - [Data preparation](#data-preparation)
 - [Pre-trained language model](#pre-trained-language-model)
 - [Training](#training)
-- [Monitoring and outputs](#monitoring-and-outputs)
-- [Resuming training](#resuming-training)
-- [Implementation notes](#implementation-notes)
-- [Troubleshooting](#troubleshooting)
-- [Citation](#citation)
-- [License and data availability](#license-and-data-availability)
-
+  
 ## Requirements
 
 The supplied dependency file specifies:
@@ -40,18 +29,9 @@ The supplied dependency file specifies:
 | SimpleITK | 2.3.1 |
 | einops | 0.8.0 |
 
-Use a Python 3.10 environment and an NVIDIA GPU with a driver compatible with the selected PyTorch CUDA build.
-
-GPU memory requirements depend on batch size and precision. Start with a small per-GPU batch size and increase it according to available memory.
-
-> The instructions below are based on source-code inspection. End-to-end training requires the MRI data and BERT weights and has not been verified with the supplied files alone.
-
 ## Installation
 
 ### 1. Download the repository
-
-Replace the URL and directory name with the actual repository information.
-
 ```bash
 git clone https://github.com/ahukui/PEFound.git
 cd PEFound
@@ -188,35 +168,6 @@ If network access is available, a model identifier can be supplied instead:
 The code loads both `BertModel` and `BertTokenizer` from this location. The text encoder's hidden dimension must match `--hidden_size`, which defaults to 768.
 
 ## Training
-
-The commands below are examples for running the supplied implementation, not a claim about the final paper's experimental settings.
-
-Both training and validation annotation files are required.
-
-### Single-GPU smoke test
-
-Start with one epoch and a small batch size:
-
-```bash
-CUDA_VISIBLE_DEVICES=0 python Train.py \
-  --data_root ./Data/All \
-  --train_data_path ./Data/training.json \
-  --val_data_path ./Data/val.json \
-  --language_model ./pretrained_model/bert-base-uncased \
-  --output_dir ./checkpoints/smoke_test \
-  --epochs 1 \
-  --batch_size 2 \
-  --grad_accum_steps 1 \
-  --num_workers 0 \
-  --precision fp16 \
-  --log_every 1 \
-  --eval_every 1 \
-  --save_every 1
-```
-
-Provide at least two valid training cases for this example. The training loader uses `drop_last=True`, so the dataset must contain at least one complete batch.
-
-A single-GPU batch size of 1 can test reconstruction and data loading, but its contrastive loss has no negative pairs and is therefore uninformative.
 
 ### Single-GPU training
 
