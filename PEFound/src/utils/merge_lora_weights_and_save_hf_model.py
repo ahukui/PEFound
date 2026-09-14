@@ -9,16 +9,16 @@ from PEFound.src.model.language_model import LamedPhi3ForCausalLM
 @dataclass
 class ModelArguments:
     version: Optional[str] = field(default="v0")
-    model_name_or_path: Optional[str] = field(default="/mnt/rds/VipinRDS/VipinRDS/users/cxs965/QK/PE_Project/MM3D/LaMed/pretrained_model/Phi-3-mini-128k-instruct", metadata={"help": "Path to the LLM or MLLM. microsoft/Phi-3-mini-4k-instruct"})
+    model_name_or_path: Optional[str] = field(default="path_to_pretrained/pretrained_model/Phi-3-mini-128k-instruct", metadata={"help": "Path to the LLM or MLLM. microsoft/Phi-3-mini-4k-instruct"})
     model_type: Optional[str] = field(default="phi3", metadata={"help": "phi3"})
 
-    model_with_lora: Optional[str] = field(default="/mnt/rds/VipinRDS/VipinRDS/users/cxs965/QK/PE_Project/MM3D/LaMed/output/LaMed-Phi3-4B-finetune-0000/model_with_lora.bin")
+    model_with_lora: Optional[str] = field(default="path_to_output/output/finetune/model_with_lora.bin")
 
     freeze_backbone: bool = field(default=False)
     pretrain_mllm: Optional[str] = field(default=None)
 
     tune_mm_mlp_adapter: bool = field(default=False, metadata={"help": "Used in pretrain: tune mm_projector and embed_tokens"})
-    pretrain_mm_mlp_adapter: Optional[str] = field(default="/mnt/rds/VipinRDS/VipinRDS/users/cxs965/QK/PE_Project/MM3D/LaMed/output/LaMed-Phi3-4B-pretrain-train/mm_projector.bin", metadata={"help": "Path to pretrained mm_projector and embed_tokens."})
+    pretrain_mm_mlp_adapter: Optional[str] = field(default="path_to_output/output/pretrain/mm_projector.bin", metadata={"help": "Path to pretrained mm_projector and embed_tokens."})
 
     # image
     image_channel: int = field(default=3)
@@ -49,7 +49,7 @@ class TrainingArguments(transformers.TrainingArguments):
     lora_bias: str = "none"
 
     cache_dir: Optional[str] = field(default=None)
-    output_dir: str = "./LaMed/output/LaMed-Phi3-4B-finetune-0000/hf/"
+    output_dir: str = "./PEFound/output/finetune/hf/"
 
 
 def find_all_linear_names(model):
